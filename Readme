@@ -1,0 +1,11 @@
+http://localhost/api/requests
+    "container_hostname": "28f26bfaf5df",
+    "container_ip": "172.19.0.5",
+    "total_count_of_requests": "237"
+
+http://localhost/api/health
+    "service_status": "pass/warning"
+    "service_version": "1.0.5"
+
+To build and start application:
+    docker-compose up --build --scale flask-app=2 --remove-orphans

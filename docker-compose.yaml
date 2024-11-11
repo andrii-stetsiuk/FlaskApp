@@ -1,0 +1,46 @@
+version: '3'
+services:
+  redis:
+    image: redis:latest
+    container_name: redis-container
+    ports:
+      - '6379:6379'
+    networks:
+      - flask-net
+
+  flask-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - SENTRY_DSN="https://examplePublicKey@o0.ingest.sentry.io/0"
+    ports:
+      - "5000"
+    networks:
+      - flask-net
+    volumes:
+      - .:/flask-app
+    depends_on:
+      - redis
+    image: flask-app
+    labels:
+      - "traefik.http.routers.flask.rule=Host(`localhost`)"
+      - "traefik.port=5000"
+
+  traefik:
+    image: "traefik:v2.2"
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"  # Dashboard
+    networks:
+      - flask-net
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+networks:
+  flask-net:
+    driver: bridge
